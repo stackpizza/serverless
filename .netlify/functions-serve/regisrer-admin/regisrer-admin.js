@@ -1,0 +1,1 @@
+module.exports = require('./src/netlify/functions/regisrer-admin.js')

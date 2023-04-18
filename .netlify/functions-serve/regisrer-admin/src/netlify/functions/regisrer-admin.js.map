@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "sources": ["netlify/functions/regisrer-admin.ts"],
+  "sourceRoot": "C:/Users/Danhalf/AppData/Local/Temp/tmp-18536-4aDBfdSu6hqI",
+  "sourcesContent": ["import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';\r\n\r\nconst handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {\r\n  return {\r\n    statusCode: 200,\r\n    body: JSON.stringify({ message: 'Hello World' }),\r\n  };\r\n};\r\n\r\nexport { handler };\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEA,IAAM,UAAmB,OAAO,OAAqB,YAA4B;AAC/E,SAAO;AAAA,IACL,YAAY;AAAA,IACZ,MAAM,KAAK,UAAU,EAAE,SAAS,cAAc,CAAC;AAAA,EACjD;AACF;",
+  "names": []
+}

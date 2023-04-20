@@ -1010,9 +1010,9 @@ var require_lexer = __commonJS({
         }
         if (code === 92) {
           value += body.slice(chunkStart, position);
-          const escape = body.charCodeAt(position + 1) === 117 ? body.charCodeAt(position + 2) === 123 ? readEscapedUnicodeVariableWidth(lexer, position) : readEscapedUnicodeFixedWidth(lexer, position) : readEscapedCharacter(lexer, position);
-          value += escape.value;
-          position += escape.size;
+          const escape2 = body.charCodeAt(position + 1) === 117 ? body.charCodeAt(position + 2) === 123 ? readEscapedUnicodeVariableWidth(lexer, position) : readEscapedUnicodeFixedWidth(lexer, position) : readEscapedCharacter(lexer, position);
+          value += escape2.value;
+          position += escape2.size;
           chunkStart = position;
           continue;
         }
@@ -24930,7 +24930,7 @@ var require_lodash = __commonJS({
           position -= target.length;
           return position >= 0 && string.slice(position, end) == target;
         }
-        function escape(string) {
+        function escape2(string) {
           string = toString(string);
           return string && reHasUnescapedHtml.test(string) ? string.replace(reUnescapedHtml, escapeHtmlChar) : string;
         }
@@ -25148,7 +25148,7 @@ var require_lodash = __commonJS({
           }
           return result2 + omission;
         }
-        function unescape(string) {
+        function unescape2(string) {
           string = toString(string);
           return string && reHasEscapedHtml.test(string) ? string.replace(reEscapedHtml, unescapeHtmlChar) : string;
         }
@@ -25533,7 +25533,7 @@ var require_lodash = __commonJS({
         lodash.divide = divide;
         lodash.endsWith = endsWith;
         lodash.eq = eq;
-        lodash.escape = escape;
+        lodash.escape = escape2;
         lodash.escapeRegExp = escapeRegExp;
         lodash.every = every;
         lodash.find = find;
@@ -25662,7 +25662,7 @@ var require_lodash = __commonJS({
         lodash.trimEnd = trimEnd;
         lodash.trimStart = trimStart;
         lodash.truncate = truncate;
-        lodash.unescape = unescape;
+        lodash.unescape = unescape2;
         lodash.uniqueId = uniqueId;
         lodash.upperCase = upperCase;
         lodash.upperFirst = upperFirst;
@@ -26734,6 +26734,1180 @@ var require_main = __commonJS({
   }
 });
 
+// node_modules/crypto-ts/bundles/crypto-ts.umd.js
+var require_crypto_ts_umd = __commonJS({
+  "node_modules/crypto-ts/bundles/crypto-ts.umd.js"(exports, module2) {
+    (function(global2, factory) {
+      typeof exports === "object" && typeof module2 !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define("crypto-ts", ["exports"], factory) : factory(global2.CryptoTS = {});
+    })(exports, function(exports2) {
+      "use strict";
+      var extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d, b) {
+        d.__proto__ = b;
+      } || function(d, b) {
+        for (var p in b)
+          if (b.hasOwnProperty(p))
+            d[p] = b[p];
+      };
+      function __extends(d, b) {
+        extendStatics(d, b);
+        function __() {
+          this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+      }
+      var Hex = function() {
+        function Hex2() {
+        }
+        Hex2.stringify = function(wordArray) {
+          var hexChars = [];
+          for (var i2 = 0; i2 < wordArray.sigBytes; i2++) {
+            var bite = wordArray.words[i2 >>> 2] >>> 24 - i2 % 4 * 8 & 255;
+            hexChars.push((bite >>> 4).toString(16));
+            hexChars.push((bite & 15).toString(16));
+          }
+          return hexChars.join("");
+        };
+        Hex2.parse = function(hexStr) {
+          var hexStrLength = hexStr.length;
+          var words = [];
+          for (var i2 = 0; i2 < hexStrLength; i2 += 2) {
+            words[i2 >>> 3] |= parseInt(hexStr.substr(i2, 2), 16) << 24 - i2 % 8 * 4;
+          }
+          return new WordArray(words, hexStrLength / 2);
+        };
+        return Hex2;
+      }();
+      var WordArray = function() {
+        function WordArray2(words, sigBytes) {
+          this.words = words || [];
+          if (sigBytes !== void 0) {
+            this.sigBytes = sigBytes;
+          } else {
+            this.sigBytes = this.words.length * 4;
+          }
+        }
+        WordArray2.random = function(nBytes) {
+          var words = [];
+          var r = function(m_w) {
+            var m_z = 987654321;
+            var mask = 4294967295;
+            return function() {
+              m_z = 36969 * (m_z & 65535) + (m_z >> 16) & mask;
+              m_w = 18e3 * (m_w & 65535) + (m_w >> 16) & mask;
+              var result = (m_z << 16) + m_w & mask;
+              result /= 4294967296;
+              result += 0.5;
+              return result * (Math.random() > 0.5 ? 1 : -1);
+            };
+          };
+          for (var i2 = 0, rcache = void 0; i2 < nBytes; i2 += 4) {
+            var _r = r((rcache || Math.random()) * 4294967296);
+            rcache = _r() * 987654071;
+            words.push(_r() * 4294967296 | 0);
+          }
+          return new WordArray2(words, nBytes);
+        };
+        WordArray2.prototype.toString = function(encoder) {
+          return (encoder || Hex).stringify(this);
+        };
+        WordArray2.prototype.concat = function(wordArray) {
+          this.clamp();
+          if (this.sigBytes % 4) {
+            for (var i2 = 0; i2 < wordArray.sigBytes; i2++) {
+              var thatByte = wordArray.words[i2 >>> 2] >>> 24 - i2 % 4 * 8 & 255;
+              this.words[this.sigBytes + i2 >>> 2] |= thatByte << 24 - (this.sigBytes + i2) % 4 * 8;
+            }
+          } else {
+            for (var i2 = 0; i2 < wordArray.sigBytes; i2 += 4) {
+              this.words[this.sigBytes + i2 >>> 2] = wordArray.words[i2 >>> 2];
+            }
+          }
+          this.sigBytes += wordArray.sigBytes;
+          return this;
+        };
+        WordArray2.prototype.clamp = function() {
+          this.words[this.sigBytes >>> 2] &= 4294967295 << 32 - this.sigBytes % 4 * 8;
+          this.words.length = Math.ceil(this.sigBytes / 4);
+        };
+        WordArray2.prototype.clone = function() {
+          return new WordArray2(this.words.slice(0), this.sigBytes);
+        };
+        return WordArray2;
+      }();
+      var Latin1 = function() {
+        function Latin12() {
+        }
+        Latin12.stringify = function(wordArray) {
+          var latin1Chars = [];
+          for (var i2 = 0; i2 < wordArray.sigBytes; i2++) {
+            var bite = wordArray.words[i2 >>> 2] >>> 24 - i2 % 4 * 8 & 255;
+            latin1Chars.push(String.fromCharCode(bite));
+          }
+          return latin1Chars.join("");
+        };
+        Latin12.parse = function(latin1Str) {
+          var latin1StrLength = latin1Str.length;
+          var words = [];
+          for (var i2 = 0; i2 < latin1StrLength; i2++) {
+            words[i2 >>> 2] |= (latin1Str.charCodeAt(i2) & 255) << 24 - i2 % 4 * 8;
+          }
+          return new WordArray(words, latin1StrLength);
+        };
+        return Latin12;
+      }();
+      var Utf8 = function() {
+        function Utf82() {
+        }
+        Utf82.stringify = function(wordArray) {
+          try {
+            return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+          } catch (e) {
+            throw new Error("Malformed UTF-8 data");
+          }
+        };
+        Utf82.parse = function(utf8Str) {
+          return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
+        };
+        return Utf82;
+      }();
+      var BufferedBlockAlgorithm = function() {
+        function BufferedBlockAlgorithm2(cfg) {
+          this._minBufferSize = 0;
+          this.cfg = Object.assign({
+            blockSize: 1
+          }, cfg);
+          this._data = new WordArray();
+          this._nDataBytes = 0;
+        }
+        BufferedBlockAlgorithm2.prototype.reset = function() {
+          this._data = new WordArray();
+          this._nDataBytes = 0;
+        };
+        BufferedBlockAlgorithm2.prototype._append = function(data) {
+          if (typeof data === "string") {
+            data = Utf8.parse(data);
+          }
+          this._data.concat(data);
+          this._nDataBytes += data.sigBytes;
+        };
+        BufferedBlockAlgorithm2.prototype._process = function(doFlush) {
+          if (!this.cfg.blockSize) {
+            throw new Error("missing blockSize in config");
+          }
+          var blockSizeBytes = this.cfg.blockSize * 4;
+          var nBlocksReady = this._data.sigBytes / blockSizeBytes;
+          if (doFlush) {
+            nBlocksReady = Math.ceil(nBlocksReady);
+          } else {
+            nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
+          }
+          var nWordsReady = nBlocksReady * this.cfg.blockSize;
+          var nBytesReady = Math.min(nWordsReady * 4, this._data.sigBytes);
+          var processedWords;
+          if (nWordsReady) {
+            for (var offset = 0; offset < nWordsReady; offset += this.cfg.blockSize) {
+              this._doProcessBlock(this._data.words, offset);
+            }
+            processedWords = this._data.words.splice(0, nWordsReady);
+            this._data.sigBytes -= nBytesReady;
+          }
+          return new WordArray(processedWords, nBytesReady);
+        };
+        BufferedBlockAlgorithm2.prototype.clone = function() {
+          var clone = this.constructor();
+          for (var attr in this) {
+            if (this.hasOwnProperty(attr)) {
+              clone[attr] = this[attr];
+            }
+          }
+          clone._data = this._data.clone();
+          return clone;
+        };
+        return BufferedBlockAlgorithm2;
+      }();
+      var Base = function() {
+        function Base2() {
+        }
+        return Base2;
+      }();
+      var CipherParams = function(_super) {
+        __extends(CipherParams2, _super);
+        function CipherParams2(cipherParams) {
+          var _this = _super.call(this) || this;
+          _this.ciphertext = cipherParams.ciphertext;
+          _this.key = cipherParams.key;
+          _this.iv = cipherParams.iv;
+          _this.salt = cipherParams.salt;
+          _this.algorithm = cipherParams.algorithm;
+          _this.mode = cipherParams.mode;
+          _this.padding = cipherParams.padding;
+          _this.blockSize = cipherParams.blockSize;
+          _this.formatter = cipherParams.formatter;
+          return _this;
+        }
+        CipherParams2.prototype.extend = function(additionalParams) {
+          if (additionalParams.ciphertext !== void 0) {
+            this.ciphertext = additionalParams.ciphertext;
+          }
+          if (additionalParams.key !== void 0) {
+            this.key = additionalParams.key;
+          }
+          if (additionalParams.iv !== void 0) {
+            this.iv = additionalParams.iv;
+          }
+          if (additionalParams.salt !== void 0) {
+            this.salt = additionalParams.salt;
+          }
+          if (additionalParams.algorithm !== void 0) {
+            this.algorithm = additionalParams.algorithm;
+          }
+          if (additionalParams.mode !== void 0) {
+            this.mode = additionalParams.mode;
+          }
+          if (additionalParams.padding !== void 0) {
+            this.padding = additionalParams.padding;
+          }
+          if (additionalParams.blockSize !== void 0) {
+            this.blockSize = additionalParams.blockSize;
+          }
+          if (additionalParams.formatter !== void 0) {
+            this.formatter = additionalParams.formatter;
+          }
+          return this;
+        };
+        CipherParams2.prototype.toString = function(formatter) {
+          if (formatter) {
+            return formatter.stringify(this);
+          } else if (this.formatter) {
+            return this.formatter.stringify(this);
+          } else {
+            throw new Error("cipher needs a formatter to be able to convert the result into a string");
+          }
+        };
+        return CipherParams2;
+      }(Base);
+      var Base64 = function() {
+        function Base642() {
+        }
+        Base642.stringify = function(wordArray) {
+          wordArray.clamp();
+          var base64Chars = [];
+          for (var i2 = 0; i2 < wordArray.sigBytes; i2 += 3) {
+            var byte1 = wordArray.words[i2 >>> 2] >>> 24 - i2 % 4 * 8 & 255;
+            var byte2 = wordArray.words[i2 + 1 >>> 2] >>> 24 - (i2 + 1) % 4 * 8 & 255;
+            var byte3 = wordArray.words[i2 + 2 >>> 2] >>> 24 - (i2 + 2) % 4 * 8 & 255;
+            var triplet = byte1 << 16 | byte2 << 8 | byte3;
+            for (var j = 0; j < 4 && i2 + j * 0.75 < wordArray.sigBytes; j++) {
+              base64Chars.push(this._map.charAt(triplet >>> 6 * (3 - j) & 63));
+            }
+          }
+          var paddingChar = this._map.charAt(64);
+          if (paddingChar) {
+            while (base64Chars.length % 4) {
+              base64Chars.push(paddingChar);
+            }
+          }
+          return base64Chars.join("");
+        };
+        Base642.parse = function(base64Str) {
+          var base64StrLength = base64Str.length;
+          if (this._reverseMap === void 0) {
+            this._reverseMap = [];
+            for (var j = 0; j < this._map.length; j++) {
+              this._reverseMap[this._map.charCodeAt(j)] = j;
+            }
+          }
+          var paddingChar = this._map.charAt(64);
+          if (paddingChar) {
+            var paddingIndex = base64Str.indexOf(paddingChar);
+            if (paddingIndex !== -1) {
+              base64StrLength = paddingIndex;
+            }
+          }
+          return this.parseLoop(base64Str, base64StrLength, this._reverseMap);
+        };
+        Base642.parseLoop = function(base64Str, base64StrLength, reverseMap) {
+          var words = [];
+          var nBytes = 0;
+          for (var i2 = 0; i2 < base64StrLength; i2++) {
+            if (i2 % 4) {
+              var bits1 = reverseMap[base64Str.charCodeAt(i2 - 1)] << i2 % 4 * 2;
+              var bits2 = reverseMap[base64Str.charCodeAt(i2)] >>> 6 - i2 % 4 * 2;
+              words[nBytes >>> 2] |= (bits1 | bits2) << 24 - nBytes % 4 * 8;
+              nBytes++;
+            }
+          }
+          return new WordArray(words, nBytes);
+        };
+        Base642._map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+        Base642._reverseMap = void 0;
+        return Base642;
+      }();
+      var OpenSSL = function() {
+        function OpenSSL2() {
+        }
+        OpenSSL2.stringify = function(cipherParams) {
+          if (!cipherParams.ciphertext) {
+            throw new Error("missing ciphertext in params");
+          }
+          var ciphertext = cipherParams.ciphertext;
+          var salt = cipherParams.salt;
+          var wordArray;
+          if (salt) {
+            if (typeof salt === "string") {
+              throw new Error("salt is expected to be a WordArray");
+            }
+            wordArray = new WordArray([1398893684, 1701076831]).concat(salt).concat(ciphertext);
+          } else {
+            wordArray = ciphertext;
+          }
+          return wordArray.toString(Base64);
+        };
+        OpenSSL2.parse = function(openSSLStr) {
+          var ciphertext = Base64.parse(openSSLStr);
+          var salt;
+          if (ciphertext.words[0] === 1398893684 && ciphertext.words[1] === 1701076831) {
+            salt = new WordArray(ciphertext.words.slice(2, 4));
+            ciphertext.words.splice(0, 4);
+            ciphertext.sigBytes -= 16;
+          }
+          return new CipherParams({ ciphertext, salt });
+        };
+        return OpenSSL2;
+      }();
+      var SerializableCipher = function() {
+        function SerializableCipher2() {
+        }
+        SerializableCipher2.encrypt = function(cipher, message, key, cfg) {
+          var config = Object.assign({}, this.cfg, cfg);
+          var encryptor = cipher.createEncryptor(key, config);
+          var ciphertext = encryptor.finalize(message);
+          return new CipherParams({
+            ciphertext,
+            key,
+            iv: encryptor.cfg.iv,
+            algorithm: cipher,
+            mode: encryptor.cfg.mode,
+            padding: encryptor.cfg.padding,
+            blockSize: encryptor.cfg.blockSize,
+            formatter: config.format
+          });
+        };
+        SerializableCipher2.decrypt = function(cipher, ciphertext, key, optionalCfg) {
+          var cfg = Object.assign({}, this.cfg, optionalCfg);
+          if (!cfg.format) {
+            throw new Error("could not determine format");
+          }
+          ciphertext = this._parse(ciphertext, cfg.format);
+          if (!ciphertext.ciphertext) {
+            throw new Error("could not determine ciphertext");
+          }
+          var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+          return plaintext;
+        };
+        SerializableCipher2._parse = function(ciphertext, format) {
+          if (typeof ciphertext === "string") {
+            return format.parse(ciphertext);
+          } else {
+            return ciphertext;
+          }
+        };
+        SerializableCipher2.cfg = {
+          blockSize: 4,
+          iv: new WordArray([]),
+          format: OpenSSL
+        };
+        return SerializableCipher2;
+      }();
+      var Hasher = function(_super) {
+        __extends(Hasher2, _super);
+        function Hasher2(cfg) {
+          var _this = _super.call(this, Object.assign({
+            blockSize: 512 / 32
+          }, cfg)) || this;
+          _this.reset();
+          return _this;
+        }
+        Hasher2._createHelper = function(hasher) {
+          function helper(message, cfg) {
+            var hasherClass = hasher;
+            var hasherInstance = new hasherClass(cfg);
+            return hasherInstance.finalize(message);
+          }
+          return helper;
+        };
+        Hasher2.prototype.update = function(messageUpdate) {
+          this._append(messageUpdate);
+          this._process();
+          return this;
+        };
+        Hasher2.prototype.finalize = function(messageUpdate) {
+          if (messageUpdate) {
+            this._append(messageUpdate);
+          }
+          var hash = this._doFinalize();
+          return hash;
+        };
+        return Hasher2;
+      }(BufferedBlockAlgorithm);
+      var T = [];
+      for (var i = 0; i < 64; i++) {
+        T[i] = Math.abs(Math.sin(i + 1)) * 4294967296 | 0;
+      }
+      var MD5 = function(_super) {
+        __extends(MD52, _super);
+        function MD52() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        MD52.FF = function(a, b, c, d, x, s, t) {
+          var n = a + (b & c | ~b & d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        };
+        MD52.GG = function(a, b, c, d, x, s, t) {
+          var n = a + (b & d | c & ~d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        };
+        MD52.HH = function(a, b, c, d, x, s, t) {
+          var n = a + (b ^ c ^ d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        };
+        MD52.II = function(a, b, c, d, x, s, t) {
+          var n = a + (c ^ (b | ~d)) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        };
+        MD52.prototype.reset = function() {
+          _super.prototype.reset.call(this);
+          this._hash = new WordArray([
+            1732584193,
+            4023233417,
+            2562383102,
+            271733878
+          ]);
+        };
+        MD52.prototype._doProcessBlock = function(M, offset) {
+          for (var i2 = 0; i2 < 16; i2++) {
+            var offset_i = offset + i2;
+            var M_offset_i = M[offset_i];
+            M[offset_i] = (M_offset_i << 8 | M_offset_i >>> 24) & 16711935 | (M_offset_i << 24 | M_offset_i >>> 8) & 4278255360;
+          }
+          var H2 = this._hash.words;
+          var M_offset_0 = M[offset + 0];
+          var M_offset_1 = M[offset + 1];
+          var M_offset_2 = M[offset + 2];
+          var M_offset_3 = M[offset + 3];
+          var M_offset_4 = M[offset + 4];
+          var M_offset_5 = M[offset + 5];
+          var M_offset_6 = M[offset + 6];
+          var M_offset_7 = M[offset + 7];
+          var M_offset_8 = M[offset + 8];
+          var M_offset_9 = M[offset + 9];
+          var M_offset_10 = M[offset + 10];
+          var M_offset_11 = M[offset + 11];
+          var M_offset_12 = M[offset + 12];
+          var M_offset_13 = M[offset + 13];
+          var M_offset_14 = M[offset + 14];
+          var M_offset_15 = M[offset + 15];
+          var a = H2[0];
+          var b = H2[1];
+          var c = H2[2];
+          var d = H2[3];
+          a = MD52.FF(a, b, c, d, M_offset_0, 7, T[0]);
+          d = MD52.FF(d, a, b, c, M_offset_1, 12, T[1]);
+          c = MD52.FF(c, d, a, b, M_offset_2, 17, T[2]);
+          b = MD52.FF(b, c, d, a, M_offset_3, 22, T[3]);
+          a = MD52.FF(a, b, c, d, M_offset_4, 7, T[4]);
+          d = MD52.FF(d, a, b, c, M_offset_5, 12, T[5]);
+          c = MD52.FF(c, d, a, b, M_offset_6, 17, T[6]);
+          b = MD52.FF(b, c, d, a, M_offset_7, 22, T[7]);
+          a = MD52.FF(a, b, c, d, M_offset_8, 7, T[8]);
+          d = MD52.FF(d, a, b, c, M_offset_9, 12, T[9]);
+          c = MD52.FF(c, d, a, b, M_offset_10, 17, T[10]);
+          b = MD52.FF(b, c, d, a, M_offset_11, 22, T[11]);
+          a = MD52.FF(a, b, c, d, M_offset_12, 7, T[12]);
+          d = MD52.FF(d, a, b, c, M_offset_13, 12, T[13]);
+          c = MD52.FF(c, d, a, b, M_offset_14, 17, T[14]);
+          b = MD52.FF(b, c, d, a, M_offset_15, 22, T[15]);
+          a = MD52.GG(a, b, c, d, M_offset_1, 5, T[16]);
+          d = MD52.GG(d, a, b, c, M_offset_6, 9, T[17]);
+          c = MD52.GG(c, d, a, b, M_offset_11, 14, T[18]);
+          b = MD52.GG(b, c, d, a, M_offset_0, 20, T[19]);
+          a = MD52.GG(a, b, c, d, M_offset_5, 5, T[20]);
+          d = MD52.GG(d, a, b, c, M_offset_10, 9, T[21]);
+          c = MD52.GG(c, d, a, b, M_offset_15, 14, T[22]);
+          b = MD52.GG(b, c, d, a, M_offset_4, 20, T[23]);
+          a = MD52.GG(a, b, c, d, M_offset_9, 5, T[24]);
+          d = MD52.GG(d, a, b, c, M_offset_14, 9, T[25]);
+          c = MD52.GG(c, d, a, b, M_offset_3, 14, T[26]);
+          b = MD52.GG(b, c, d, a, M_offset_8, 20, T[27]);
+          a = MD52.GG(a, b, c, d, M_offset_13, 5, T[28]);
+          d = MD52.GG(d, a, b, c, M_offset_2, 9, T[29]);
+          c = MD52.GG(c, d, a, b, M_offset_7, 14, T[30]);
+          b = MD52.GG(b, c, d, a, M_offset_12, 20, T[31]);
+          a = MD52.HH(a, b, c, d, M_offset_5, 4, T[32]);
+          d = MD52.HH(d, a, b, c, M_offset_8, 11, T[33]);
+          c = MD52.HH(c, d, a, b, M_offset_11, 16, T[34]);
+          b = MD52.HH(b, c, d, a, M_offset_14, 23, T[35]);
+          a = MD52.HH(a, b, c, d, M_offset_1, 4, T[36]);
+          d = MD52.HH(d, a, b, c, M_offset_4, 11, T[37]);
+          c = MD52.HH(c, d, a, b, M_offset_7, 16, T[38]);
+          b = MD52.HH(b, c, d, a, M_offset_10, 23, T[39]);
+          a = MD52.HH(a, b, c, d, M_offset_13, 4, T[40]);
+          d = MD52.HH(d, a, b, c, M_offset_0, 11, T[41]);
+          c = MD52.HH(c, d, a, b, M_offset_3, 16, T[42]);
+          b = MD52.HH(b, c, d, a, M_offset_6, 23, T[43]);
+          a = MD52.HH(a, b, c, d, M_offset_9, 4, T[44]);
+          d = MD52.HH(d, a, b, c, M_offset_12, 11, T[45]);
+          c = MD52.HH(c, d, a, b, M_offset_15, 16, T[46]);
+          b = MD52.HH(b, c, d, a, M_offset_2, 23, T[47]);
+          a = MD52.II(a, b, c, d, M_offset_0, 6, T[48]);
+          d = MD52.II(d, a, b, c, M_offset_7, 10, T[49]);
+          c = MD52.II(c, d, a, b, M_offset_14, 15, T[50]);
+          b = MD52.II(b, c, d, a, M_offset_5, 21, T[51]);
+          a = MD52.II(a, b, c, d, M_offset_12, 6, T[52]);
+          d = MD52.II(d, a, b, c, M_offset_3, 10, T[53]);
+          c = MD52.II(c, d, a, b, M_offset_10, 15, T[54]);
+          b = MD52.II(b, c, d, a, M_offset_1, 21, T[55]);
+          a = MD52.II(a, b, c, d, M_offset_8, 6, T[56]);
+          d = MD52.II(d, a, b, c, M_offset_15, 10, T[57]);
+          c = MD52.II(c, d, a, b, M_offset_6, 15, T[58]);
+          b = MD52.II(b, c, d, a, M_offset_13, 21, T[59]);
+          a = MD52.II(a, b, c, d, M_offset_4, 6, T[60]);
+          d = MD52.II(d, a, b, c, M_offset_11, 10, T[61]);
+          c = MD52.II(c, d, a, b, M_offset_2, 15, T[62]);
+          b = MD52.II(b, c, d, a, M_offset_9, 21, T[63]);
+          H2[0] = H2[0] + a | 0;
+          H2[1] = H2[1] + b | 0;
+          H2[2] = H2[2] + c | 0;
+          H2[3] = H2[3] + d | 0;
+        };
+        MD52.prototype._doFinalize = function() {
+          var data = this._data;
+          var dataWords = data.words;
+          var nBitsTotal = this._nDataBytes * 8;
+          var nBitsLeft = data.sigBytes * 8;
+          dataWords[nBitsLeft >>> 5] |= 128 << 24 - nBitsLeft % 32;
+          var nBitsTotalH = Math.floor(nBitsTotal / 4294967296);
+          var nBitsTotalL = nBitsTotal;
+          dataWords[(nBitsLeft + 64 >>> 9 << 4) + 15] = (nBitsTotalH << 8 | nBitsTotalH >>> 24) & 16711935 | (nBitsTotalH << 24 | nBitsTotalH >>> 8) & 4278255360;
+          dataWords[(nBitsLeft + 64 >>> 9 << 4) + 14] = (nBitsTotalL << 8 | nBitsTotalL >>> 24) & 16711935 | (nBitsTotalL << 24 | nBitsTotalL >>> 8) & 4278255360;
+          data.sigBytes = (dataWords.length + 1) * 4;
+          this._process();
+          var hash = this._hash;
+          var H2 = hash.words;
+          for (var i2 = 0; i2 < 4; i2++) {
+            var H_i = H2[i2];
+            H2[i2] = (H_i << 8 | H_i >>> 24) & 16711935 | (H_i << 24 | H_i >>> 8) & 4278255360;
+          }
+          return hash;
+        };
+        return MD52;
+      }(Hasher);
+      var EvpKDF = function() {
+        function EvpKDF2(cfg) {
+          this.cfg = Object.assign({
+            keySize: 128 / 32,
+            hasher: MD5,
+            iterations: 1
+          }, cfg);
+        }
+        EvpKDF2.prototype.compute = function(password, salt) {
+          var hasher = new this.cfg.hasher();
+          var derivedKey = new WordArray();
+          var block;
+          while (derivedKey.words.length < this.cfg.keySize) {
+            if (block) {
+              hasher.update(block);
+            }
+            block = hasher.update(password).finalize(salt);
+            hasher.reset();
+            for (var i2 = 1; i2 < this.cfg.iterations; i2++) {
+              block = hasher.finalize(block);
+              hasher.reset();
+            }
+            derivedKey.concat(block);
+          }
+          derivedKey.sigBytes = this.cfg.keySize * 4;
+          return derivedKey;
+        };
+        return EvpKDF2;
+      }();
+      var OpenSSLKdf = function() {
+        function OpenSSLKdf2() {
+        }
+        OpenSSLKdf2.execute = function(password, keySize, ivSize, salt) {
+          if (!salt) {
+            salt = WordArray.random(64 / 8);
+          }
+          var key = new EvpKDF({ keySize: keySize + ivSize }).compute(password, salt);
+          var iv = new WordArray(key.words.slice(keySize), ivSize * 4);
+          key.sigBytes = keySize * 4;
+          return new CipherParams({ key, iv, salt });
+        };
+        return OpenSSLKdf2;
+      }();
+      var PasswordBasedCipher = function() {
+        function PasswordBasedCipher2() {
+        }
+        PasswordBasedCipher2.encrypt = function(cipher, message, password, cfg) {
+          var config = Object.assign({}, this.cfg, cfg);
+          if (config.kdf === void 0) {
+            throw new Error("missing kdf in config");
+          }
+          var derivedParams = config.kdf.execute(password, cipher.keySize, cipher.ivSize);
+          if (derivedParams.iv !== void 0) {
+            config.iv = derivedParams.iv;
+          }
+          var ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, config);
+          return ciphertext.extend(derivedParams);
+        };
+        PasswordBasedCipher2.decrypt = function(cipher, ciphertext, password, cfg) {
+          var config = Object.assign({}, this.cfg, cfg);
+          if (config.format === void 0) {
+            throw new Error("missing format in config");
+          }
+          ciphertext = this._parse(ciphertext, config.format);
+          if (config.kdf === void 0) {
+            throw new Error("the key derivation function must be set");
+          }
+          var derivedParams = config.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt);
+          if (derivedParams.iv !== void 0) {
+            config.iv = derivedParams.iv;
+          }
+          var plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, config);
+          return plaintext;
+        };
+        PasswordBasedCipher2._parse = function(ciphertext, format) {
+          if (typeof ciphertext === "string") {
+            return format.parse(ciphertext);
+          } else {
+            return ciphertext;
+          }
+        };
+        PasswordBasedCipher2.cfg = {
+          blockSize: 4,
+          iv: new WordArray([]),
+          format: OpenSSL,
+          kdf: OpenSSLKdf
+        };
+        return PasswordBasedCipher2;
+      }();
+      var Cipher = function(_super) {
+        __extends(Cipher2, _super);
+        function Cipher2(xformMode, key, cfg) {
+          var _this = _super.call(this, Object.assign({
+            blockSize: 1
+          }, cfg)) || this;
+          _this._xformMode = xformMode;
+          _this._key = key;
+          _this.reset();
+          return _this;
+        }
+        Cipher2.createEncryptor = function(key, cfg) {
+          var thisClass = this;
+          return new thisClass(this._ENC_XFORM_MODE, key, cfg);
+        };
+        Cipher2.createDecryptor = function(key, cfg) {
+          var thisClass = this;
+          return new thisClass(this._DEC_XFORM_MODE, key, cfg);
+        };
+        Cipher2._createHelper = function(cipher) {
+          function encrypt(message, key, cfg) {
+            if (typeof key === "string") {
+              return PasswordBasedCipher.encrypt(cipher, message, key, cfg);
+            } else {
+              return SerializableCipher.encrypt(cipher, message, key, cfg);
+            }
+          }
+          function decrypt(ciphertext, key, cfg) {
+            if (typeof key === "string") {
+              return PasswordBasedCipher.decrypt(cipher, ciphertext, key, cfg);
+            } else {
+              return SerializableCipher.decrypt(cipher, ciphertext, key, cfg);
+            }
+          }
+          return {
+            encrypt,
+            decrypt
+          };
+        };
+        Cipher2.prototype.process = function(dataUpdate) {
+          this._append(dataUpdate);
+          return this._process();
+        };
+        Cipher2.prototype.finalize = function(dataUpdate) {
+          if (dataUpdate) {
+            this._append(dataUpdate);
+          }
+          var finalProcessedData = this._doFinalize();
+          return finalProcessedData;
+        };
+        Cipher2._ENC_XFORM_MODE = 1;
+        Cipher2._DEC_XFORM_MODE = 2;
+        Cipher2.keySize = 4;
+        Cipher2.ivSize = 4;
+        return Cipher2;
+      }(BufferedBlockAlgorithm);
+      var BlockCipherModeAlgorithm = function() {
+        function BlockCipherModeAlgorithm2(cipher, iv) {
+          this.init(cipher, iv);
+        }
+        BlockCipherModeAlgorithm2.prototype.init = function(cipher, iv) {
+          this._cipher = cipher;
+          this._iv = iv;
+        };
+        return BlockCipherModeAlgorithm2;
+      }();
+      var BlockCipherMode = function() {
+        function BlockCipherMode2() {
+        }
+        BlockCipherMode2.createEncryptor = function(cipher, iv) {
+          var encryptorClass = this.Encryptor;
+          return new encryptorClass(cipher, iv);
+        };
+        BlockCipherMode2.createDecryptor = function(cipher, iv) {
+          var decryptorClass = this.Decryptor;
+          return new decryptorClass(cipher, iv);
+        };
+        BlockCipherMode2.Encryptor = BlockCipherModeAlgorithm;
+        BlockCipherMode2.Decryptor = BlockCipherModeAlgorithm;
+        return BlockCipherMode2;
+      }();
+      var CBCEncryptor = function(_super) {
+        __extends(CBCEncryptor2, _super);
+        function CBCEncryptor2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        CBCEncryptor2.prototype.processBlock = function(words, offset) {
+          if (this._cipher.cfg.blockSize === void 0) {
+            throw new Error("missing blockSize in cipher config");
+          }
+          this.xorBlock(words, offset, this._cipher.cfg.blockSize);
+          this._cipher.encryptBlock(words, offset);
+          this._prevBlock = words.slice(offset, offset + this._cipher.cfg.blockSize);
+        };
+        CBCEncryptor2.prototype.xorBlock = function(words, offset, blockSize) {
+          var block;
+          if (this._iv) {
+            block = this._iv;
+            this._iv = void 0;
+          } else {
+            block = this._prevBlock;
+          }
+          if (block !== void 0) {
+            for (var i2 = 0; i2 < blockSize; i2++) {
+              words[offset + i2] ^= block[i2];
+            }
+          }
+        };
+        return CBCEncryptor2;
+      }(BlockCipherModeAlgorithm);
+      var CBCDecryptor = function(_super) {
+        __extends(CBCDecryptor2, _super);
+        function CBCDecryptor2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        CBCDecryptor2.prototype.processBlock = function(words, offset) {
+          if (this._cipher.cfg.blockSize === void 0) {
+            throw new Error("missing blockSize in cipher config");
+          }
+          var thisBlock = words.slice(offset, offset + this._cipher.cfg.blockSize);
+          this._cipher.decryptBlock(words, offset);
+          this.xorBlock(words, offset, this._cipher.cfg.blockSize);
+          this._prevBlock = thisBlock;
+        };
+        CBCDecryptor2.prototype.xorBlock = function(words, offset, blockSize) {
+          var block;
+          if (this._iv) {
+            block = this._iv;
+            this._iv = void 0;
+          } else {
+            block = this._prevBlock;
+          }
+          if (block !== void 0) {
+            for (var i2 = 0; i2 < blockSize; i2++) {
+              words[offset + i2] ^= block[i2];
+            }
+          }
+        };
+        return CBCDecryptor2;
+      }(BlockCipherModeAlgorithm);
+      var CBC = function(_super) {
+        __extends(CBC2, _super);
+        function CBC2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        CBC2.Encryptor = CBCEncryptor;
+        CBC2.Decryptor = CBCDecryptor;
+        return CBC2;
+      }(BlockCipherMode);
+      var PKCS7 = function() {
+        function PKCS72() {
+        }
+        PKCS72.pad = function(data, blockSize) {
+          var blockSizeBytes = blockSize * 4;
+          var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+          var paddingWord = nPaddingBytes << 24 | nPaddingBytes << 16 | nPaddingBytes << 8 | nPaddingBytes;
+          var paddingWords = [];
+          for (var i2 = 0; i2 < nPaddingBytes; i2 += 4) {
+            paddingWords.push(paddingWord);
+          }
+          var padding = new WordArray(paddingWords, nPaddingBytes);
+          data.concat(padding);
+        };
+        PKCS72.unpad = function(data) {
+          var nPaddingBytes = data.words[data.sigBytes - 1 >>> 2] & 255;
+          data.sigBytes -= nPaddingBytes;
+        };
+        return PKCS72;
+      }();
+      var BlockCipher = function(_super) {
+        __extends(BlockCipher2, _super);
+        function BlockCipher2(xformMode, key, cfg) {
+          return _super.call(this, xformMode, key, Object.assign({
+            blockSize: 4,
+            mode: CBC,
+            padding: PKCS7
+          }, cfg)) || this;
+        }
+        BlockCipher2.prototype.reset = function() {
+          _super.prototype.reset.call(this);
+          if (this.cfg.mode === void 0) {
+            throw new Error("missing mode in config");
+          }
+          var modeCreator;
+          if (this._xformMode === this.constructor._ENC_XFORM_MODE) {
+            modeCreator = this.cfg.mode.createEncryptor;
+          } else {
+            modeCreator = this.cfg.mode.createDecryptor;
+            this._minBufferSize = 1;
+          }
+          if (this._mode && this._mode.__creator === modeCreator) {
+            this._mode.init(this, this.cfg.iv && this.cfg.iv.words);
+          } else {
+            this._mode = modeCreator.call(this.cfg.mode, this, this.cfg.iv && this.cfg.iv.words);
+            this._mode.__creator = modeCreator;
+          }
+        };
+        BlockCipher2.prototype._doProcessBlock = function(words, offset) {
+          this._mode.processBlock(words, offset);
+        };
+        BlockCipher2.prototype._doFinalize = function() {
+          if (this.cfg.padding === void 0) {
+            throw new Error("missing padding in config");
+          }
+          var finalProcessedBlocks;
+          if (this._xformMode === this.constructor._ENC_XFORM_MODE) {
+            if (this.cfg.blockSize === void 0) {
+              throw new Error("missing blockSize in config");
+            }
+            this.cfg.padding.pad(this._data, this.cfg.blockSize);
+            finalProcessedBlocks = this._process(true);
+          } else {
+            finalProcessedBlocks = this._process(true);
+            this.cfg.padding.unpad(finalProcessedBlocks);
+          }
+          return finalProcessedBlocks;
+        };
+        return BlockCipher2;
+      }(Cipher);
+      var SBOX = [];
+      var INV_SBOX = [];
+      var SUB_MIX_0 = [];
+      var SUB_MIX_1 = [];
+      var SUB_MIX_2 = [];
+      var SUB_MIX_3 = [];
+      var INV_SUB_MIX_0 = [];
+      var INV_SUB_MIX_1 = [];
+      var INV_SUB_MIX_2 = [];
+      var INV_SUB_MIX_3 = [];
+      (function() {
+        var d = [];
+        for (var i2 = 0; i2 < 256; i2++) {
+          if (i2 < 128) {
+            d[i2] = i2 << 1;
+          } else {
+            d[i2] = i2 << 1 ^ 283;
+          }
+        }
+        var x = 0;
+        var xi = 0;
+        for (var i2 = 0; i2 < 256; i2++) {
+          var sx = xi ^ xi << 1 ^ xi << 2 ^ xi << 3 ^ xi << 4;
+          sx = sx >>> 8 ^ sx & 255 ^ 99;
+          SBOX[x] = sx;
+          INV_SBOX[sx] = x;
+          var x2 = d[x];
+          var x4 = d[x2];
+          var x8 = d[x4];
+          var t = d[sx] * 257 ^ sx * 16843008;
+          SUB_MIX_0[x] = t << 24 | t >>> 8;
+          SUB_MIX_1[x] = t << 16 | t >>> 16;
+          SUB_MIX_2[x] = t << 8 | t >>> 24;
+          SUB_MIX_3[x] = t;
+          t = x8 * 16843009 ^ x4 * 65537 ^ x2 * 257 ^ x * 16843008;
+          INV_SUB_MIX_0[sx] = t << 24 | t >>> 8;
+          INV_SUB_MIX_1[sx] = t << 16 | t >>> 16;
+          INV_SUB_MIX_2[sx] = t << 8 | t >>> 24;
+          INV_SUB_MIX_3[sx] = t;
+          if (!x) {
+            x = xi = 1;
+          } else {
+            x = x2 ^ d[d[d[x8 ^ x2]]];
+            xi ^= d[d[xi]];
+          }
+        }
+      })();
+      var RCON = [0, 1, 2, 4, 8, 16, 32, 64, 128, 27, 54];
+      var AES2 = function(_super) {
+        __extends(AES3, _super);
+        function AES3(xformMode, key, cfg) {
+          return _super.call(this, xformMode, key, cfg) || this;
+        }
+        AES3.prototype.reset = function() {
+          _super.prototype.reset.call(this);
+          if (this._nRounds && this._keyPriorReset === this._key) {
+            return;
+          }
+          var key = this._keyPriorReset = this._key;
+          var keyWords = key.words;
+          var keySize = key.sigBytes / 4;
+          var nRounds = this._nRounds = keySize + 6;
+          var ksRows = (nRounds + 1) * 4;
+          var keySchedule = this._keySchedule = [];
+          for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+            if (ksRow < keySize) {
+              keySchedule[ksRow] = keyWords[ksRow];
+            } else {
+              var t = keySchedule[ksRow - 1];
+              if (!(ksRow % keySize)) {
+                t = t << 8 | t >>> 24;
+                t = SBOX[t >>> 24] << 24 | SBOX[t >>> 16 & 255] << 16 | SBOX[t >>> 8 & 255] << 8 | SBOX[t & 255];
+                t ^= RCON[ksRow / keySize | 0] << 24;
+              } else if (keySize > 6 && ksRow % keySize === 4) {
+                t = SBOX[t >>> 24] << 24 | SBOX[t >>> 16 & 255] << 16 | SBOX[t >>> 8 & 255] << 8 | SBOX[t & 255];
+              }
+              keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
+            }
+          }
+          var invKeySchedule = this._invKeySchedule = [];
+          for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+            var ksRow = ksRows - invKsRow;
+            var t = void 0;
+            if (invKsRow % 4) {
+              t = keySchedule[ksRow];
+            } else {
+              t = keySchedule[ksRow - 4];
+            }
+            if (invKsRow < 4 || ksRow <= 4) {
+              invKeySchedule[invKsRow] = t;
+            } else {
+              invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[t >>> 16 & 255]] ^ INV_SUB_MIX_2[SBOX[t >>> 8 & 255]] ^ INV_SUB_MIX_3[SBOX[t & 255]];
+            }
+          }
+        };
+        AES3.prototype.encryptBlock = function(M, offset) {
+          this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
+        };
+        AES3.prototype.decryptBlock = function(M, offset) {
+          var t = M[offset + 1];
+          M[offset + 1] = M[offset + 3];
+          M[offset + 3] = t;
+          this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX);
+          t = M[offset + 1];
+          M[offset + 1] = M[offset + 3];
+          M[offset + 3] = t;
+        };
+        AES3.prototype._doCryptBlock = function(M, offset, keySchedule, sub_mix_0, sub_mix_1, sub_mix_2, sub_mix_3, sbox) {
+          var s0 = M[offset] ^ keySchedule[0];
+          var s1 = M[offset + 1] ^ keySchedule[1];
+          var s2 = M[offset + 2] ^ keySchedule[2];
+          var s3 = M[offset + 3] ^ keySchedule[3];
+          var ksRow = 4;
+          for (var round = 1; round < this._nRounds; round++) {
+            var t0 = sub_mix_0[s0 >>> 24] ^ sub_mix_1[s1 >>> 16 & 255] ^ sub_mix_2[s2 >>> 8 & 255] ^ sub_mix_3[s3 & 255] ^ keySchedule[ksRow++];
+            var t1 = sub_mix_0[s1 >>> 24] ^ sub_mix_1[s2 >>> 16 & 255] ^ sub_mix_2[s3 >>> 8 & 255] ^ sub_mix_3[s0 & 255] ^ keySchedule[ksRow++];
+            var t2 = sub_mix_0[s2 >>> 24] ^ sub_mix_1[s3 >>> 16 & 255] ^ sub_mix_2[s0 >>> 8 & 255] ^ sub_mix_3[s1 & 255] ^ keySchedule[ksRow++];
+            var t3 = sub_mix_0[s3 >>> 24] ^ sub_mix_1[s0 >>> 16 & 255] ^ sub_mix_2[s1 >>> 8 & 255] ^ sub_mix_3[s2 & 255] ^ keySchedule[ksRow++];
+            s0 = t0;
+            s1 = t1;
+            s2 = t2;
+            s3 = t3;
+          }
+          var t0g = (sbox[s0 >>> 24] << 24 | sbox[s1 >>> 16 & 255] << 16 | sbox[s2 >>> 8 & 255] << 8 | sbox[s3 & 255]) ^ keySchedule[ksRow++];
+          var t1g = (sbox[s1 >>> 24] << 24 | sbox[s2 >>> 16 & 255] << 16 | sbox[s3 >>> 8 & 255] << 8 | sbox[s0 & 255]) ^ keySchedule[ksRow++];
+          var t2g = (sbox[s2 >>> 24] << 24 | sbox[s3 >>> 16 & 255] << 16 | sbox[s0 >>> 8 & 255] << 8 | sbox[s1 & 255]) ^ keySchedule[ksRow++];
+          var t3g = (sbox[s3 >>> 24] << 24 | sbox[s0 >>> 16 & 255] << 16 | sbox[s1 >>> 8 & 255] << 8 | sbox[s2 & 255]) ^ keySchedule[ksRow++];
+          M[offset] = t0g;
+          M[offset + 1] = t1g;
+          M[offset + 2] = t2g;
+          M[offset + 3] = t3g;
+        };
+        AES3.keySize = 8;
+        return AES3;
+      }(BlockCipher);
+      var H = [];
+      var K = [];
+      var W = [];
+      var SHA256 = function(_super) {
+        __extends(SHA2562, _super);
+        function SHA2562() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        SHA2562.prototype.reset = function() {
+          _super.prototype.reset.call(this);
+          this._hash = new WordArray(H.slice(0));
+        };
+        SHA2562.prototype._doProcessBlock = function(M, offset) {
+          var Hl = this._hash.words;
+          var a = Hl[0];
+          var b = Hl[1];
+          var c = Hl[2];
+          var d = Hl[3];
+          var e = Hl[4];
+          var f = Hl[5];
+          var g = Hl[6];
+          var h = Hl[7];
+          for (var i2 = 0; i2 < 64; i2++) {
+            if (i2 < 16) {
+              W[i2] = M[offset + i2] | 0;
+            } else {
+              var gamma0x = W[i2 - 15];
+              var gamma0 = (gamma0x << 25 | gamma0x >>> 7) ^ (gamma0x << 14 | gamma0x >>> 18) ^ gamma0x >>> 3;
+              var gamma1x = W[i2 - 2];
+              var gamma1 = (gamma1x << 15 | gamma1x >>> 17) ^ (gamma1x << 13 | gamma1x >>> 19) ^ gamma1x >>> 10;
+              W[i2] = gamma0 + W[i2 - 7] + gamma1 + W[i2 - 16];
+            }
+            var ch = e & f ^ ~e & g;
+            var maj = a & b ^ a & c ^ b & c;
+            var sigma0 = (a << 30 | a >>> 2) ^ (a << 19 | a >>> 13) ^ (a << 10 | a >>> 22);
+            var sigma1 = (e << 26 | e >>> 6) ^ (e << 21 | e >>> 11) ^ (e << 7 | e >>> 25);
+            var t1 = h + sigma1 + ch + K[i2] + W[i2];
+            var t2 = sigma0 + maj;
+            h = g;
+            g = f;
+            f = e;
+            e = d + t1 | 0;
+            d = c;
+            c = b;
+            b = a;
+            a = t1 + t2 | 0;
+          }
+          Hl[0] = Hl[0] + a | 0;
+          Hl[1] = Hl[1] + b | 0;
+          Hl[2] = Hl[2] + c | 0;
+          Hl[3] = Hl[3] + d | 0;
+          Hl[4] = Hl[4] + e | 0;
+          Hl[5] = Hl[5] + f | 0;
+          Hl[6] = Hl[6] + g | 0;
+          Hl[7] = Hl[7] + h | 0;
+        };
+        SHA2562.prototype._doFinalize = function() {
+          var nBitsTotal = this._nDataBytes * 8;
+          var nBitsLeft = this._data.sigBytes * 8;
+          this._data.words[nBitsLeft >>> 5] |= 128 << 24 - nBitsLeft % 32;
+          this._data.words[(nBitsLeft + 64 >>> 9 << 4) + 14] = Math.floor(nBitsTotal / 4294967296);
+          this._data.words[(nBitsLeft + 64 >>> 9 << 4) + 15] = nBitsTotal;
+          this._data.sigBytes = this._data.words.length * 4;
+          this._process();
+          return this._hash;
+        };
+        return SHA2562;
+      }(Hasher);
+      var NoPadding = function() {
+        function NoPadding2() {
+        }
+        NoPadding2.pad = function(data, blockSize) {
+        };
+        NoPadding2.unpad = function(data) {
+        };
+        return NoPadding2;
+      }();
+      var ECBEncryptor = function(_super) {
+        __extends(ECBEncryptor2, _super);
+        function ECBEncryptor2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ECBEncryptor2.prototype.processBlock = function(words, offset) {
+          this._cipher.encryptBlock(words, offset);
+        };
+        return ECBEncryptor2;
+      }(BlockCipherModeAlgorithm);
+      var ECBDecryptor = function(_super) {
+        __extends(ECBDecryptor2, _super);
+        function ECBDecryptor2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ECBDecryptor2.prototype.processBlock = function(words, offset) {
+          this._cipher.decryptBlock(words, offset);
+        };
+        return ECBDecryptor2;
+      }(BlockCipherModeAlgorithm);
+      var ECB = function(_super) {
+        __extends(ECB2, _super);
+        function ECB2() {
+          return _super !== null && _super.apply(this, arguments) || this;
+        }
+        ECB2.Encryptor = ECBEncryptor;
+        ECB2.Decryptor = ECBDecryptor;
+        return ECB2;
+      }(BlockCipherMode);
+      var lib = {
+        BlockCipher,
+        WordArray,
+        CipherParams,
+        Hasher,
+        SerializableCipher,
+        PasswordBasedCipher
+      };
+      var algo = {
+        AES: AES2,
+        SHA256
+      };
+      var enc = {
+        Utf8,
+        Hex
+      };
+      var pad = {
+        NoPadding,
+        PKCS7
+      };
+      var mode = {
+        CBC,
+        ECB
+      };
+      var AES$1 = lib.BlockCipher._createHelper(algo.AES);
+      var SHA256$1 = lib.Hasher._createHelper(algo.SHA256);
+      exports2.lib = lib;
+      exports2.algo = algo;
+      exports2.enc = enc;
+      exports2.pad = pad;
+      exports2.mode = mode;
+      exports2.AES = AES$1;
+      exports2.SHA256 = SHA256$1;
+      exports2.\u0275l = AES2;
+      exports2.\u0275m = SHA256;
+      exports2.\u0275p = Hex;
+      exports2.\u0275o = Latin1;
+      exports2.\u0275n = Utf8;
+      exports2.\u0275g = Base;
+      exports2.\u0275a = BlockCipher;
+      exports2.\u0275c = BufferedBlockAlgorithm;
+      exports2.\u0275b = Cipher;
+      exports2.\u0275f = CipherParams;
+      exports2.\u0275i = Hasher;
+      exports2.\u0275k = PasswordBasedCipher;
+      exports2.\u0275j = SerializableCipher;
+      exports2.\u0275e = WordArray;
+      exports2.\u0275t = BlockCipherMode;
+      exports2.\u0275s = CBC;
+      exports2.\u0275u = ECB;
+      exports2.\u0275q = NoPadding;
+      exports2.\u0275r = PKCS7;
+      Object.defineProperty(exports2, "__esModule", { value: true });
+    });
+  }
+});
+
 // netlify/functions/admin-registration.ts
 var admin_registration_exports = {};
 __export(admin_registration_exports, {
@@ -27280,12 +28454,17 @@ function getSdk(client, withWrapper = defaultWrapper) {
 }
 
 // netlify/functions/admin-registration.ts
+var import_crypto_ts = __toESM(require_crypto_ts_umd());
 var handler = async (event, context) => {
   var _a;
   const { body } = event;
   const input = JSON.parse(body).input.admin;
   const sdk = getSdk(new GraphQLClient("http://localhost:8080/v1/graphql"));
-  const data = await sdk.InsertAdmin(input);
+  const password = import_crypto_ts.AES.encrypt(input.password, "jwtaccessecretpassword").toString();
+  const data = await sdk.InsertAdmin({
+    username: input.username,
+    password
+  });
   const accessToken = import_jsonwebtoken.default.sign({
     "https://hasura.io/jwt/claims": {
       "x-hasura-default-role": "admin",
@@ -27302,6 +28481,20 @@ var handler = async (event, context) => {
 0 && (module.exports = {
   handler
 });
+/*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /**
  * @license
@@ -27310,5 +28503,9 @@ var handler = async (event, context) => {
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+/**
+ * @license crypto-ts
+ * MIT license
  */
 //# sourceMappingURL=admin-registration.js.map

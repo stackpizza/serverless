@@ -2,6 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { getSdk } from '../common/sdk';
+import { AES } from 'crypto-ts';
 
 interface IAdminRegisterInput {
   username: string;
@@ -14,7 +15,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
   const sdk = getSdk(new GraphQLClient('http://localhost:8080/v1/graphql'));
 
-  const data = await sdk.InsertAdmin(input);
+  const password = AES.encrypt(input.password, 'jwtaccessecretpassword').toString();
+
+  const data = await sdk.InsertAdmin({
+    username: input.username,
+    password: password,
+  });
 
   const accessToken = jwt.sign(
     {

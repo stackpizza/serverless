@@ -28436,11 +28436,9 @@ var import_jsonwebtoken = __toESM(require_jsonwebtoken());
 // netlify/common/sdk.ts
 var import_graphql_tag = __toESM(require_main());
 var InsertAdminDocument = import_graphql_tag.default`
-    mutation InsertAdmin($password: String = "", $username: String = "") {
-  insert_admin(objects: {password: $password, username: $username}) {
-    returning {
-      id
-    }
+    mutation InsertAdmin($password: String, $username: String) {
+  insert_admin_one(object: {password: $password, username: $username}) {
+    id
   }
 }
     `;
@@ -28457,7 +28455,14 @@ function getSdk(client, withWrapper = defaultWrapper) {
 var import_crypto_ts = __toESM(require_crypto_ts_umd());
 var handler = async (event, context) => {
   var _a;
-  const { body } = event;
+  const { body, headers } = event;
+  console.log(headers);
+  if (!headers["x-pizzastack-secret-key"] || headers["x-pizzastack-secret-key"] !== "mypizzastacksecretkey") {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({ message: "'x-pizzastack-secret-key' is missing or value is incorrect" })
+    };
+  }
   const input = JSON.parse(body).input.admin;
   const sdk = getSdk(new GraphQLClient("http://localhost:8080/v1/graphql"));
   const password = import_crypto_ts.AES.encrypt(input.password, "jwtaccessecretpassword").toString();
@@ -28469,7 +28474,7 @@ var handler = async (event, context) => {
     "https://hasura.io/jwt/claims": {
       "x-hasura-default-role": "admin",
       "x-hasura-allowed-roles": ["admin"],
-      "x-hasura-user-id": (_a = data.insert_admin) == null ? void 0 : _a.returning[0].id
+      "x-hasura-user-id": (_a = data.insert_admin_one) == null ? void 0 : _a.id
     }
   }, "jwtaccessecret");
   return {

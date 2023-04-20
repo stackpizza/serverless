@@ -10,7 +10,17 @@ interface IAdminRegisterInput {
 }
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
-  const { body } = event;
+  const { body, headers } = event;
+
+  console.log(headers);
+
+  if (!headers['x-pizzastack-secret-key'] || headers['x-pizzastack-secret-key'] !== 'mypizzastacksecretkey') {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({ message: "'x-pizzastack-secret-key' is missing or value is incorrect" }),
+    };
+  }
+
   const input: IAdminRegisterInput = JSON.parse(body!).input.admin;
 
   const sdk = getSdk(new GraphQLClient('http://localhost:8080/v1/graphql'));
@@ -27,7 +37,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       'https://hasura.io/jwt/claims': {
         'x-hasura-default-role': 'admin',
         'x-hasura-allowed-roles': ['admin'],
-        'x-hasura-user-id': data.insert_admin?.returning[0].id,
+        'x-hasura-user-id': data.insert_admin_one?.id,
       },
     },
     'jwtaccessecret'

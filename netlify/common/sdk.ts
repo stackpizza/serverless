@@ -232,6 +232,8 @@ export enum Cursor_Ordering {
 /** mutation root */
 export type Mutation_Root = {
   __typename?: 'mutation_root';
+  /** Admin registration */
+  adminRegistration?: Maybe<AdminRegisterOutput>;
   /** delete data from the table: "admin" */
   delete_admin?: Maybe<Admin_Mutation_Response>;
   /** delete single row from the table: "admin" */
@@ -248,8 +250,6 @@ export type Mutation_Root = {
   insert_pizza_menu?: Maybe<Pizza_Menu_Mutation_Response>;
   /** insert a single row into the table: "pizza_menu" */
   insert_pizza_menu_one?: Maybe<Pizza_Menu>;
-  /** Admin registration */
-  register?: Maybe<AdminRegisterOutput>;
   /** update data of the table: "admin" */
   update_admin?: Maybe<Admin_Mutation_Response>;
   /** update single row of the table: "admin" */
@@ -262,6 +262,12 @@ export type Mutation_Root = {
   update_pizza_menu_by_pk?: Maybe<Pizza_Menu>;
   /** update multiples rows of table: "pizza_menu" */
   update_pizza_menu_many?: Maybe<Array<Maybe<Pizza_Menu_Mutation_Response>>>;
+};
+
+
+/** mutation root */
+export type Mutation_RootAdminRegistrationArgs = {
+  admin: AdminRegisterInput;
 };
 
 
@@ -314,12 +320,6 @@ export type Mutation_RootInsert_Pizza_MenuArgs = {
 export type Mutation_RootInsert_Pizza_Menu_OneArgs = {
   object: Pizza_Menu_Insert_Input;
   on_conflict?: InputMaybe<Pizza_Menu_On_Conflict>;
-};
-
-
-/** mutation root */
-export type Mutation_RootRegisterArgs = {
-  admin: AdminRegisterInput;
 };
 
 
@@ -813,11 +813,9 @@ export type Uuid_Comparison_Exp = {
 
 
 export const InsertAdminDocument = gql`
-    mutation InsertAdmin($password: String = "", $username: String = "") {
-  insert_admin(objects: {password: $password, username: $username}) {
-    returning {
-      id
-    }
+    mutation InsertAdmin($password: String, $username: String) {
+  insert_admin_one(object: {password: $password, username: $username}) {
+    id
   }
 }
     `;
@@ -841,4 +839,4 @@ export type InsertAdminMutationVariables = Exact<{
 }>;
 
 
-export type InsertAdminMutation = { __typename?: 'mutation_root', insert_admin?: { __typename?: 'admin_mutation_response', returning: Array<{ __typename?: 'admin', id: any }> } | null };
+export type InsertAdminMutation = { __typename?: 'mutation_root', insert_admin_one?: { __typename?: 'admin', id: any } | null };

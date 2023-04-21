@@ -2,8 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import jwt from 'jsonwebtoken';
 import { getSdk } from '../common/sdk';
-import { hashPassword } from '../common/password';
-import { signToken } from '../common/jwt';
+import { AES } from 'crypto-ts';
 
 interface IAdminRegisterInput {
   username: string;
@@ -12,6 +11,8 @@ interface IAdminRegisterInput {
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   const { body, headers } = event;
+
+  console.log(headers);
 
   if (!headers['x-pizzastack-secret-key'] || headers['x-pizzastack-secret-key'] !== 'mypizzastacksecretkey') {
     return {
@@ -24,15 +25,23 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
   const sdk = getSdk(new GraphQLClient('http://localhost:8080/v1/graphql'));
 
-  const password = hashPassword(input.password);
+  const password = AES.encrypt(input.password, 'jwtaccessecretpassword').toString();
 
   const data = await sdk.InsertAdmin({
     username: input.username,
     password: password,
   });
 
-  const accessToken = signToken(data.insert_admin_one?.id);
-
+  const accessToken = jwt.sign(
+    {
+      'https://hasura.io/jwt/claims': {
+        'x-hasura-default-role': 'admin',
+        'x-hasura-allowed-roles': ['admin'],
+        'x-hasura-user-id': data.insert_admin_one?.id,
+      },
+    },
+    'jwtaccessecretkeyjwtaccessecretkey'
+  );
   return {
     statusCode: 200,
     body: JSON.stringify({ accessToken }),
